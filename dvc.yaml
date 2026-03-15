@@ -1,0 +1,23 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py --input data/raw --output data/processed
+    deps: [src/preprocess.py, data/raw]
+    outs: [data/processed]
+
+  featurize:
+    cmd: python src/featurize.py --input data/processed --output data/features
+    deps: [src/featurize.py, data/processed]
+    params: [configs/params.yaml:featurize]
+    outs: [data/features]
+
+  train:
+    cmd: python src/train.py
+    deps: [src/train.py, data/features]
+    params: [configs/params.yaml:train]
+    outs: [models/model.pkl]
+    metrics: [metrics/train_metrics.json]
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps: [src/evaluate.py, models/model.pkl, data/features]
+    metrics: [metrics/scores.json]
